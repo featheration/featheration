@@ -8,6 +8,8 @@ const StyledButton = styled.button`
   height: 56px;
 
   border-radius: 50%;
+
+  background-image: var(--action-button-background);
 `;
 
 export function ActionButton({ children }: PropsWithChildren<{}>): JSX.Element {
