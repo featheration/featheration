@@ -1,7 +1,5 @@
-// .storybook/main.ts
-
-// Imports Storybook's configuration API
 import type { StorybookConfig } from '@storybook/types';
+import { defineConfig, mergeConfig, UserConfig } from 'vite';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
@@ -22,4 +20,16 @@ const config: StorybookConfig = {
   },
 };
 
-module.exports = config;
+module.exports = {
+  ...config,
+  async viteFinal(config: UserConfig) {
+    return mergeConfig(
+      config,
+      defineConfig({
+        build: {
+          sourcemap: false,
+        },
+      }),
+    );
+  },
+};

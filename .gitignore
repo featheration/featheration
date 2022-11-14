@@ -31,3 +31,8 @@ dist-ssr
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
