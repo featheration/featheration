@@ -28,7 +28,7 @@ jobs:
       - name: Install
         run: yarn
       - name: Build
-        run: yarn build
+        run: yarn build-storybook
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
