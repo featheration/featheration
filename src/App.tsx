@@ -1,6 +1,6 @@
 import { Stack } from './stackflow';
 
-export function App() {
+export function App(): JSX.Element {
   return (
     <>
       <div>

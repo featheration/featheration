@@ -1,8 +1,13 @@
 import { defineConfig } from 'vite';
-import preact from '@preact/preset-vite';
+import react from '@vitejs/plugin-react';
 import linaria from '@linaria/rollup';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preact(), linaria()],
+  plugins: [
+    react(),
+    linaria({
+      include: ['**/*.{ts,tsx}'],
+    }),
+  ],
 });

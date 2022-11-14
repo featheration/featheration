@@ -1,1 +1,0 @@
-import JSX = react.JSX;
