@@ -13,7 +13,14 @@ export const TweetActivity: React.FC<{ params: TweetActivityProps }> = ({
   return (
     <AppScreen appBar={{ title: 'Tweet' }}>
       {tweet.text}
-      <ActionButton>Test</ActionButton>
+      <ActionButton
+        color="#2b2b2b"
+        backgroundNormal="#dcdcdc"
+        backgroundHover="#f4f4f4"
+        backgroundActive="#c2c2c2"
+      >
+        Test
+      </ActionButton>
     </AppScreen>
   );
 };
