@@ -3,10 +3,7 @@ import { css } from '@linaria/core';
 css`
   :global() {
     * {
-      box-sizing: border-box;
-    }
-    button {
-      border: none;
+      transition: all 0.2s ease-in-out;
     }
   }
 `;
