@@ -28,13 +28,17 @@ jobs:
       - name: Install
         run: yarn
       - name: Build
+        run: yarn build
+      - name: Build Storybook
         run: yarn build-storybook
+      - name: Copy Storybook Output
+        run: mv storybook-static dist/storybook
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'storybook-static'
+          path: dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@main
