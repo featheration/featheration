@@ -1,6 +1,7 @@
 import { cx } from '@linaria/core';
 import { styled } from '@linaria/react';
 import {
+  ButtonHTMLAttributes,
   cloneElement,
   MouseEventHandler,
   PropsWithChildren,
@@ -123,7 +124,8 @@ const ActionButtonBase = styled.button`
   }
 `;
 
-export interface ActionButtonProps {
+export interface ActionButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
   backgroundNormal: string;
   backgroundHover: string;
   backgroundActive: string;
@@ -137,7 +139,7 @@ export function ActionButton({
   backgroundHover,
   backgroundActive,
   color,
-  onClick,
+  ...props
 }: PropsWithChildren<ActionButtonProps>): JSX.Element {
   return (
     <ActionButtonBase
@@ -147,7 +149,7 @@ export function ActionButton({
         '--button-background-active': backgroundActive,
         '--text': color ?? '',
       }}
-      onClick={onClick}
+      {...props}
     >
       {children}
     </ActionButtonBase>
