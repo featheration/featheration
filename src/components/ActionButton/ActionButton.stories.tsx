@@ -97,21 +97,21 @@ export const Animation: StoryFn<BaseArgs> = (props) => {
       <ActionButton {...props} onClick={switchIcon}>
         {icon === 'chat' ? (
           <>
-            <ActionButton.AnimationIn>
+            <ActionButton.AnimateIn>
               <Icon icon="chat" />
-            </ActionButton.AnimationIn>
-            <ActionButton.AnimationOut>
+            </ActionButton.AnimateIn>
+            <ActionButton.AnimateOut>
               <Icon icon="post" />
-            </ActionButton.AnimationOut>
+            </ActionButton.AnimateOut>
           </>
         ) : icon === 'post' ? (
           <>
-            <ActionButton.AnimationIn reverse={true}>
+            <ActionButton.AnimateIn reverse={true}>
               <Icon icon="post" />
-            </ActionButton.AnimationIn>
-            <ActionButton.AnimationOut reverse={true}>
+            </ActionButton.AnimateIn>
+            <ActionButton.AnimateOut reverse={true}>
               <Icon icon="chat" />
-            </ActionButton.AnimationOut>
+            </ActionButton.AnimateOut>
           </>
         ) : (
           <Icon icon="post" />

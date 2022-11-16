@@ -156,8 +156,8 @@ export function ActionButton({
   );
 }
 
-ActionButton.AnimationIn = AnimationIn;
-function AnimationIn<P extends { className?: string }>({
+ActionButton.AnimateIn = AnimateIn;
+function AnimateIn<P extends { className?: string }>({
   children,
   reverse,
 }: {
@@ -173,8 +173,8 @@ function AnimationIn<P extends { className?: string }>({
   });
 }
 
-ActionButton.AnimationOut = AnimationOut;
-function AnimationOut<P extends { className?: string }>({
+ActionButton.AnimateOut = AnimateOut;
+function AnimateOut<P extends { className?: string }>({
   children,
   reverse,
 }: {
