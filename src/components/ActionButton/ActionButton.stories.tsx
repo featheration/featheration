@@ -2,6 +2,7 @@ import { Meta, StoryFn } from '@storybook/react';
 import { ActionButton } from '.';
 import { BiPen } from 'react-icons/bi';
 import { RiMailAddLine } from 'react-icons/ri';
+import { MouseEventHandler, useState } from 'react';
 
 type BaseArgs = {
   color: string;
@@ -39,23 +40,29 @@ const FakeScreen: React.FC<React.PropsWithChildren> = ({ children }) => (
     {children}
   </div>
 );
-
-export const Simple: StoryFn<BaseArgs & { icon: 'post' | 'chat' }> = ({
+type IconName = 'post' | 'chat';
+const Icon: React.FC<{ className?: string; icon: IconName }> = ({
+  className,
   icon,
-  ...props
 }) => {
-  let iconElement: JSX.Element;
   switch (icon) {
     case 'post':
-      iconElement = <BiPen />;
-      break;
+      return <BiPen className={className} />;
     case 'chat':
-      iconElement = <RiMailAddLine />;
-      break;
+      return <RiMailAddLine className={className} />;
   }
+};
+
+export const Simple: StoryFn<
+  BaseArgs & { icon: IconName } & {
+    onClick: MouseEventHandler<HTMLButtonElement>;
+  }
+> = ({ icon, ...props }) => {
   return (
     <FakeScreen>
-      <ActionButton {...props}>{iconElement}</ActionButton>
+      <ActionButton {...props}>
+        <Icon icon={icon} />
+      </ActionButton>
     </FakeScreen>
   );
 };
@@ -65,4 +72,51 @@ Simple.argTypes = {
     options: ['post', 'chat'],
     defaultValue: 'post',
   },
+  onClick: {
+    action: true,
+  },
+};
+
+export const Animation: StoryFn<BaseArgs> = (props) => {
+  const [icon, setIcon] = useState<IconName | null>(null);
+
+  const switchIcon = () => {
+    switch (icon) {
+      case null:
+      case 'post':
+        setIcon('chat');
+        break;
+      case 'chat':
+        setIcon('post');
+        break;
+    }
+  };
+
+  return (
+    <FakeScreen>
+      <ActionButton {...props} onClick={switchIcon}>
+        {icon === 'chat' ? (
+          <>
+            <ActionButton.AnimationIn>
+              <Icon icon="chat" />
+            </ActionButton.AnimationIn>
+            <ActionButton.AnimationOut>
+              <Icon icon="post" />
+            </ActionButton.AnimationOut>
+          </>
+        ) : icon === 'post' ? (
+          <>
+            <ActionButton.AnimationIn reverse={true}>
+              <Icon icon="post" />
+            </ActionButton.AnimationIn>
+            <ActionButton.AnimationOut reverse={true}>
+              <Icon icon="chat" />
+            </ActionButton.AnimationOut>
+          </>
+        ) : (
+          <Icon icon="post" />
+        )}
+      </ActionButton>
+    </FakeScreen>
+  );
 };
