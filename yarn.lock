@@ -3568,7 +3568,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
+"@types/node@npm:*, @types/node@npm:^18.11.9":
   version: 18.11.9
   resolution: "@types/node@npm:18.11.9"
   checksum: cc0aae109e9b7adefc32eecb838d6fad931663bb06484b5e9cbbbf74865c721b03d16fd8d74ad90e31dbe093d956a7c2c306ba5429ba0c00f3f7505103d7a496
@@ -3704,6 +3704,24 @@ __metadata:
   dependencies:
     "@types/yargs-parser": "*"
   checksum: caa21d2c957592fe2184a8368c8cbe5a82a6c2e2f2893722e489f842dc5963293d2f3120bc06fe3933d60a3a0d1e2eb269649fd6b1947fe1820f8841ba611dd9
+  languageName: node
+  linkType: hard
+
+"@use-gesture/core@npm:10.2.22":
+  version: 10.2.22
+  resolution: "@use-gesture/core@npm:10.2.22"
+  checksum: e4615a581b632c0fefa92c62ccf889ef3d195669870afd34696b985668c5bfb9a37d08791570bb592363ed8be41c419e7f2c1afdf3b6bd0574c7876eca12db29
+  languageName: node
+  linkType: hard
+
+"@use-gesture/react@npm:^10.2.22":
+  version: 10.2.22
+  resolution: "@use-gesture/react@npm:10.2.22"
+  dependencies:
+    "@use-gesture/core": 10.2.22
+  peerDependencies:
+    react: ">= 16.8.0"
+  checksum: 1d05fd8630f3e2f74b931ebefb07d7f76494c133486c7828b6162cd8c0a020a69ef5ded014c7b51aa97bdc7368efc3283d208e3ff27952bbeff6f988ea0a3a98
   languageName: node
   linkType: hard
 
@@ -6352,8 +6370,10 @@ __metadata:
     "@storybook/testing-library": ^0.0.13
     "@storybook/types": ^7.0.0-alpha.49
     "@tanstack/react-virtual": ^3.0.0-beta.22
+    "@types/node": ^18.11.9
     "@types/react": ^18.0.25
     "@types/react-dom": ^18.0.8
+    "@use-gesture/react": ^10.2.22
     "@vitejs/plugin-react": ^2.2.0
     babel-plugin-transform-hook-names: ^1.0.2
     misskey-js: ^0.0.14

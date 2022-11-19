@@ -1,4 +1,4 @@
-import { cx } from '@linaria/core';
+import { css, cx } from '@linaria/core';
 import { styled } from '@linaria/react';
 import {
   ButtonHTMLAttributes,
@@ -8,6 +8,7 @@ import {
   ReactElement,
 } from 'react';
 import { MediaBreakpoints } from '../../styles/breakpoints';
+import { HasClassname, PropChildren } from '../../utils/type';
 
 const ActionButtonBase = styled.button`
   // As Material Design said, its size should be 56 x 56dp(same as px on the web).
@@ -26,71 +27,6 @@ const ActionButtonBase = styled.button`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
-
-  @keyframes action-button-animation-in {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -50%) rotate(-90deg);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-  }
-
-  @keyframes action-button-animation-in-reverse {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -50%) rotate(90deg);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-  }
-
-  & > .animation-in {
-    animation: action-button-animation-in 0.2s linear;
-  }
-
-  & > .animation-in-reverse {
-    animation: action-button-animation-in-reverse 0.2s linear;
-  }
-
-  @keyframes action-button-animation-out {
-    from {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    to {
-      opacity: 0;
-      transform: translate(-50%, -50%) rotate(90deg);
-    }
-  }
-
-  @keyframes action-button-animation-out-reverse {
-    from {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    to {
-      opacity: 0;
-      transform: translate(-50%, -50%) rotate(-90deg);
-    }
-  }
-
-  & > .animation-out {
-    animation: action-button-animation-out 0.2s linear;
-  }
-
-  & > .animation-out-reverse {
-    animation: action-button-animation-out-reverse 0.2s linear;
-  }
-
-  & > .animation-out,
-  & > .animation-out-reverse {
-    opacity: 0;
   }
 
   position: absolute;
@@ -121,6 +57,70 @@ const ActionButtonBase = styled.button`
   &:active {
     background: var(--button-background-active);
     outline-color: var(--button-background-active);
+  }
+`;
+
+const styleAnimateIn = css`
+  @keyframes forward {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+  }
+  @keyframes backward {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+  }
+
+  &:not(.reverse) {
+    animation: forward 0.2s linear;
+  }
+
+  &.reverse {
+    animation: backward 0.2s linear;
+  }
+`;
+
+const styleAnimateOut = css`
+  @keyframes forward {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+  }
+  @keyframes backward {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+  }
+
+  opacity: 0;
+
+  &:not(.reverse) {
+    animation: forward 0.2s linear;
+  }
+
+  &.reverse {
+    animation: backward 0.2s linear;
   }
 `;
 
@@ -156,36 +156,36 @@ export function ActionButton({
   );
 }
 
+export interface AnimateProps {
+  reverse?: boolean;
+}
+
 ActionButton.AnimateIn = AnimateIn;
-function AnimateIn<P extends { className?: string }>({
+function AnimateIn<P extends HasClassname>({
   children,
   reverse,
-}: {
-  children: ReactElement<P>;
-  reverse?: boolean;
-}): JSX.Element {
+}: AnimateProps & PropChildren<P>): JSX.Element {
   return cloneElement(children, {
     ...children.props,
     className: cx(
       children.props.className,
-      reverse ? 'animation-in-reverse' : 'animation-in',
+      styleAnimateIn,
+      reverse && 'reverse',
     ),
   });
 }
 
 ActionButton.AnimateOut = AnimateOut;
-function AnimateOut<P extends { className?: string }>({
+function AnimateOut<P extends HasClassname>({
   children,
   reverse,
-}: {
-  children: ReactElement<P>;
-  reverse?: boolean;
-}): JSX.Element {
+}: AnimateProps & PropChildren<P>): JSX.Element {
   return cloneElement(children, {
     ...children.props,
     className: cx(
       children.props.className,
-      reverse ? 'animation-out-reverse' : 'animation-out',
+      styleAnimateOut,
+      reverse && 'reverse',
     ),
   });
 }

@@ -35,11 +35,13 @@ const FakeScreen: React.FC<React.PropsWithChildren> = ({ children }) => (
       borderRadius: '8px',
 
       display: 'inline-block',
+      overflow: 'hidden',
     }}
   >
     {children}
   </div>
 );
+
 type IconName = 'post' | 'chat';
 const Icon: React.FC<{ className?: string; icon: IconName }> = ({
   className,
@@ -73,7 +75,7 @@ Simple.argTypes = {
     defaultValue: 'post',
   },
   onClick: {
-    action: true,
+    control: false,
   },
 };
 
@@ -119,4 +121,10 @@ export const Animation: StoryFn<BaseArgs> = (props) => {
       </ActionButton>
     </FakeScreen>
   );
+};
+
+Animation.parameters = {
+  controls: {
+    exclude: ['onClick'],
+  },
 };
