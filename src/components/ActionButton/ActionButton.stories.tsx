@@ -72,11 +72,13 @@ Simple.argTypes = {
   icon: {
     control: { type: 'select' },
     options: ['post', 'chat'],
-    defaultValue: 'post',
   },
   onClick: {
     control: false,
   },
+};
+Simple.args = {
+  icon: 'post',
 };
 
 export const Animation: StoryFn<BaseArgs> = (props) => {
