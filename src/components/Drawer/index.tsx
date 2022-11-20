@@ -63,7 +63,6 @@ export function useDrawer(side: Side): {
               Math.max(-drawnRef.value, drawnRef.uncomitted),
               ref.current.offsetWidth - drawnRef.value,
             );
-            console.log(drawnRef.value, drawnRef.uncomitted);
             ref.current.style.transform = `translateX(calc(${lr} * (-100% + min(${
               drawnRef.value + drawnRef.uncomitted
             }px, 100%))))`;
