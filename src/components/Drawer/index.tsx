@@ -79,7 +79,7 @@ export function useDrawer(side: Side): {
             drawnRef.uncomitted = lr * movement[1] * drawSpeedMultiplier;
             drawnRef.uncomitted = Math.min(
               Math.max(-drawnRef.value, drawnRef.uncomitted),
-              ref.current.offsetWidth - drawnRef.value,
+              ref.current.offsetHeight - drawnRef.value,
             );
             ref.current.style.transform = `translateY(calc(${lr} * (-100% + min(${
               drawnRef.value + drawnRef.uncomitted
