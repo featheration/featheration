@@ -13,9 +13,11 @@ export type Side = typeof Side[keyof typeof Side];
 
 const drawerBaseStyle = css`
   position: absolute;
+  transition: transform 0s;
 `;
 
 export interface DrawerProps {
+  drawSpeedMultiplier?: number;
   dragHandle?: HTMLElement | RefObject<HTMLElement>;
 }
 
@@ -34,6 +36,7 @@ export function useDrawer(side: Side): {
   );
 
   function Drawer<P extends HasClassname & HasStyle & HasRef>({
+    drawSpeedMultiplier = 3,
     children,
   }: DrawerProps & PropChildren<P>): JSX.Element {
     if (children.props.ref) {
@@ -53,29 +56,40 @@ export function useDrawer(side: Side): {
         }
         switch (side) {
           case Side.Left:
-          case Side.Right:
-            const multiplier = side === Side.Left ? 1 : -1;
-            drawnRef.uncomitted = movement[0] * multiplier;
-            ref.current.style[
-              side === Side.Left ? 'left' : 'right'
-            ] = `calc(-100% + min(${
-              multiplier * drawnRef.value + drawnRef.uncomitted
-            }px, 100%))`;
+          case Side.Right: {
+            const lr = side === Side.Left ? 1 : -1;
+            drawnRef.uncomitted = lr * movement[0] * drawSpeedMultiplier;
+            drawnRef.uncomitted = Math.min(
+              Math.max(-drawnRef.value, drawnRef.uncomitted),
+              ref.current.offsetWidth - drawnRef.value,
+            );
+            console.log(drawnRef.value, drawnRef.uncomitted);
+            ref.current.style.transform = `translateX(calc(${lr} * (-100% + min(${
+              drawnRef.value + drawnRef.uncomitted
+            }px, 100%))))`;
             if (!down) {
               drawnRef.value += drawnRef.uncomitted;
               drawnRef.uncomitted = 0;
             }
             break;
+          }
           case Side.Top:
-            if (direction[1] === 1) {
-              ref.current.style.transform = `translateY(${movement[1]}px)`;
+          case Side.Bottom: {
+            const lr = side === Side.Top ? 1 : -1;
+            drawnRef.uncomitted = lr * movement[1] * drawSpeedMultiplier;
+            drawnRef.uncomitted = Math.min(
+              Math.max(-drawnRef.value, drawnRef.uncomitted),
+              ref.current.offsetWidth - drawnRef.value,
+            );
+            ref.current.style.transform = `translateY(calc(${lr} * (-100% + min(${
+              drawnRef.value + drawnRef.uncomitted
+            }px, 100%))))`;
+            if (!down) {
+              drawnRef.value += drawnRef.uncomitted;
+              drawnRef.uncomitted = 0;
             }
             break;
-          case Side.Bottom:
-            if (direction[1] === -1) {
-              ref.current.style.transform = `translateY(${movement[1]}px)`;
-            }
-            break;
+          }
         }
       };
 
@@ -93,6 +107,19 @@ export function useDrawer(side: Side): {
       ref,
       style: {
         ...children.props.style,
+
+        ...(side === Side.Left
+          ? { left: 0, transform: 'translateX(-100%)' }
+          : {}),
+        ...(side === Side.Right
+          ? { right: 0, transform: 'translateX(100%)' }
+          : {}),
+        ...(side === Side.Top
+          ? { top: 0, transform: 'translateY(-100%)' }
+          : {}),
+        ...(side === Side.Bottom
+          ? { bottom: 0, transform: 'translateY(100%)' }
+          : {}),
       },
     });
     return childrenWithProps;

@@ -31,8 +31,8 @@ const FakeScreen: React.FC<
 
       position: 'relative',
 
-      width: '200px',
-      height: '300px',
+      width: '400px',
+      height: '600px',
 
       background: '#a2a2a2',
       borderRadius: '8px',
@@ -62,10 +62,10 @@ const FakeDrawerContentWrap: React.FC<
       background: '#d2d2d2',
 
       ...(side === Side.Left || side === Side.Right
-        ? { height: '300px', width: '150px' }
+        ? { height: '600px', width: '300px' }
         : {}),
       ...(side === Side.Top || side === Side.Bottom
-        ? { height: '200px', width: '200px' }
+        ? { height: '400px', width: '400px' }
         : {}),
 
       touchAction: 'none',
@@ -82,7 +82,7 @@ export const Simple: StoryFn<BaseArgs> = ({ side, ...props }) => {
 
   return (
     <FakeScreen ref={ref} {...bind()}>
-      <Drawer {...props} dragHandle={ref}>
+      <Drawer {...props} dragHandle={ref} drawSpeedMultiplier={1}>
         <FakeDrawerContentWrap side={side} {...bind()}>
           Drawer
         </FakeDrawerContentWrap>
