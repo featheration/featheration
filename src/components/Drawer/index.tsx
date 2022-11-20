@@ -177,7 +177,6 @@ export function useDrawer<Global extends boolean>({
 
             const currentlyDrawn =
               side === Side.Top ? values[index] : parentLength - values[index];
-            console.log(currentlyDrawn);
             const movementX = multiplier * movement[index];
 
             if (!isOpen) {
