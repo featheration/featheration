@@ -1,9 +1,7 @@
-import { css } from '@linaria/core';
+import { css } from '@emotion/react';
 
-css`
-  :global() {
-    * {
-      transition: all 0.2s ease-in-out;
-    }
+export const Animation = css`
+  * {
+    transition: all 0.2s ease-in-out;
   }
 `;

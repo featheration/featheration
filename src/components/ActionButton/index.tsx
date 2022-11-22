@@ -1,5 +1,5 @@
-import { css, cx } from '@linaria/core';
-import { styled } from '@linaria/react';
+import { css, cx } from '@emotion/css';
+import styled from '@emotion/styled';
 import {
   ButtonHTMLAttributes,
   cloneElement,

@@ -1,4 +1,4 @@
-import { css, cx } from '@linaria/core';
+import { css, cx } from '@emotion/css';
 import { Handler, useDrag } from '@use-gesture/react';
 import { cloneElement, useCallback, useEffect, useRef } from 'react';
 import { toPx } from '../../lib/to-px';
@@ -22,7 +22,7 @@ export interface DrawerConfig {
 export function useDrawer({
   beginThreshold: rawBeginThreshold,
   toggleThreshold = '50%',
-}: DrawerConfig): {
+}: DrawerConfig = {}): {
   Drawer: typeof Drawer;
   open: () => void;
   close: () => void;

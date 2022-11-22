@@ -1,2 +1,2 @@
-import './animation';
-import './reset';
+export * from './animation';
+export * from './reset';

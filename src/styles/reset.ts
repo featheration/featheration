@@ -1,12 +1,10 @@
-import { css } from '@linaria/core';
+import { css } from '@emotion/react';
 
-css`
-  :global() {
-    * {
-      box-sizing: border-box;
-    }
-    button {
-      border: none;
-    }
+export const Reset = css`
+  * {
+    box-sizing: border-box;
+  }
+  button {
+    border: none;
   }
 `;
