@@ -161,7 +161,6 @@ export function useDrawer({
     const childrenWithProps = cloneElement(children, {
       ...children.props,
       className: cx(children.props.className, drawerBaseStyle),
-      'data-animate': '',
 
       ref,
       style: {
