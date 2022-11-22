@@ -1,17 +1,8 @@
 import { css, cx } from '@linaria/core';
 import { Handler, useDrag } from '@use-gesture/react';
-import { cloneElement, RefObject, useEffect, useRef, useState } from 'react';
+import { cloneElement, useCallback, useEffect, useRef } from 'react';
 import { toPx } from '../../lib/to-px';
-import { coerceIn } from '../../utils/range';
 import { PropChildren, HasClassname, HasStyle, HasRef } from '../../utils/type';
-
-export const Side = Object.freeze({
-  Left: 'left',
-  Right: 'right',
-  Top: 'top',
-  Bottom: 'bottom',
-});
-export type Side = typeof Side[keyof typeof Side];
 
 const drawerBaseStyle = css`
   position: absolute;
@@ -23,20 +14,18 @@ const drawerBaseStyle = css`
   }
 `;
 
-export interface DrawerConfig<Global extends boolean> {
-  side: Side;
+export interface DrawerConfig {
   beginThreshold?: string;
   toggleThreshold?: string;
-  global?: Global;
 }
 
-export function useDrawer<Global extends boolean>({
-  side,
+export function useDrawer({
   beginThreshold: rawBeginThreshold,
   toggleThreshold = '50%',
-  global,
-}: DrawerConfig<Global>): {
+}: DrawerConfig): {
   Drawer: typeof Drawer;
+  open: () => void;
+  close: () => void;
 } {
   let beginThreshold: string;
   if (rawBeginThreshold) {
@@ -44,16 +33,28 @@ export function useDrawer<Global extends boolean>({
   } else {
     beginThreshold = '1vmin';
   }
+
   const runnersRef = useRef<Handler<'drag'>[]>([]);
+  const openRef = useRef<Array<() => void>>([]);
+  const closeRef = useRef<Array<() => void>>([]);
+
   useDrag(
     (event) => {
       runnersRef.current.forEach((runner) => runner(event));
     },
     {
-      axis: side === Side.Left || side === Side.Right ? 'x' : 'y',
+      axis: 'x',
       target: window,
     },
   );
+
+  const open = useCallback(() => {
+    openRef.current.forEach((f) => f());
+  }, []);
+
+  const close = useCallback(() => {
+    closeRef.current.forEach((f) => f());
+  }, []);
 
   function Drawer<P extends HasClassname & HasStyle & HasRef>({
     children,
@@ -66,189 +67,108 @@ export function useDrawer<Global extends boolean>({
     useEffect(() => {
       let isOpen = false;
       let isDragging = false;
-      let removeAnimationId: number;
+      let lastAnimation: number;
 
-      let multiplier: number;
-      let transformFunction: string;
-      switch (side) {
-        case Side.Left:
-          multiplier = 1;
-          transformFunction = 'translateX';
-          break;
-        case Side.Right:
-          multiplier = -1;
-          transformFunction = 'translateX';
-          break;
-        case Side.Top:
-          multiplier = 1;
-          transformFunction = 'translateY';
-          break;
-        case Side.Bottom:
-          multiplier = -1;
-          transformFunction = 'translateY';
-          break;
-      }
-
-      function open() {
+      function openDrawer() {
         if (!ref.current) {
           return;
         }
+        startAnimation();
         isOpen = true;
-        ref.current.style.transform = `${transformFunction}(0)`;
+        ref.current.style.transform = 'translateX(0)';
       }
 
-      function close() {
+      function closeDrawer() {
         if (!ref.current) {
           return;
         }
+        startAnimation();
         isOpen = false;
-        ref.current.style.transform = `${transformFunction}(calc(${multiplier} * -100%))`;
+        ref.current.style.transform = `translateX(-100%)`;
+      }
+
+      function startAnimation() {
+        if (lastAnimation) {
+          clearTimeout(lastAnimation);
+        }
+        const target = ref.current;
+        if (!target) {
+          return;
+        }
+        target.dataset['animate'] = '';
+        lastAnimation = window.setTimeout(() => {
+          delete target.dataset['animate'];
+        }, 300);
       }
 
       const handler: Handler<'drag'> = ({
         down,
-        direction,
-        movement,
-        values,
+        movement: [mx, _my],
+        values: [vx, _vy],
+        first,
       }) => {
         if (!ref.current) {
           return;
         }
-        switch (side) {
-          case Side.Left:
-          case Side.Right: {
-            const length = ref.current.offsetWidth;
-            const parentLength =
-              ref.current.parentElement?.offsetWidth ?? length;
-            const index = 0;
 
-            const currentlyDrawn =
-              side === Side.Left ? values[index] : parentLength - values[index];
-            const movementX = multiplier * movement[index];
+        if (first) {
+          delete ref.current.dataset['animate'];
+        }
 
-            if (!isOpen) {
-              const threshold = toPx(beginThreshold, ref.current, 'width');
-              if (movementX > threshold && !isDragging) {
-                isDragging = true;
-                ref.current.dataset['animate'] = '';
-                removeAnimationId = window.setTimeout(() => {
-                  if (ref.current) {
-                    delete ref.current.dataset['animate'];
-                  }
-                }, 300);
-              }
-              if (isDragging) {
-                ref.current.style.transform = `${transformFunction}(calc(${multiplier} * (-100% + min(${currentlyDrawn}px, 100%))))`;
-              }
-            } else {
-              ref.current.style.transform = `${transformFunction}(calc(${multiplier} * min(0px, max(${movementX}px, -100%))))`;
-            }
-            if (!down) {
-              isDragging = false;
-              clearInterval(removeAnimationId);
-              ref.current.dataset['animate'] = '';
-              removeAnimationId = window.setTimeout(() => {
-                if (ref.current) {
-                  delete ref.current.dataset['animate'];
-                }
-              }, 300);
+        const evaluateToPx = (s: string) => toPx(s, ref.current, 'width');
 
-              const threshold = toPx(toggleThreshold, ref.current, 'width');
+        const length = ref.current.offsetWidth;
 
-              const condition = !isOpen
-                ? Math.sign(movement[index]) === multiplier &&
-                  currentlyDrawn > threshold
-                : length + movementX > threshold;
-
-              if (condition) {
-                open();
-              } else {
-                close();
-              }
-            }
-            break;
+        if (!isOpen) {
+          const threshold = evaluateToPx(beginThreshold);
+          if (mx > threshold && !isDragging) {
+            isDragging = true;
+            startAnimation();
           }
-          case Side.Top:
-          case Side.Bottom: {
-            const length = ref.current.offsetHeight;
-            const parentLength =
-              ref.current.parentElement?.offsetHeight ?? length;
-            const index = 1;
+          if (isDragging) {
+            ref.current.style.transform = `translateX(calc(-100% + min(${vx}px, 100%)))`;
+          }
+        } else {
+          ref.current.style.transform = `translateX(min(0px, max(${mx}px, -100%)))`;
+        }
+        if (!down) {
+          isDragging = false;
 
-            const currentlyDrawn =
-              side === Side.Top ? values[index] : parentLength - values[index];
-            const movementX = multiplier * movement[index];
+          const threshold = evaluateToPx(toggleThreshold);
 
-            if (!isOpen) {
-              const threshold = toPx(beginThreshold, ref.current, 'height');
-              if (movementX > threshold && !isDragging) {
-                isDragging = true;
-                ref.current.dataset['animate'] = '';
-                removeAnimationId = window.setTimeout(() => {
-                  if (ref.current) {
-                    delete ref.current.dataset['animate'];
-                  }
-                }, 300);
-              }
-              if (isDragging) {
-                ref.current.style.transform = `${transformFunction}(calc(${multiplier} * (-100% + min(${currentlyDrawn}px, 100%))))`;
-              }
-            } else {
-              ref.current.style.transform = `${transformFunction}(calc(${multiplier} * min(0px, max(${movementX}px, -100%))))`;
-            }
-            if (!down) {
-              isDragging = false;
-              clearInterval(removeAnimationId);
-              ref.current.dataset['animate'] = '';
-              removeAnimationId = window.setTimeout(() => {
-                if (ref.current) {
-                  delete ref.current.dataset['animate'];
-                }
-              }, 300);
+          const toOpen = !isOpen
+            ? mx > 0 && vx > threshold
+            : length + mx > threshold;
 
-              const threshold = toPx(toggleThreshold, ref.current, 'height');
-
-              const condition = !isOpen
-                ? Math.sign(movement[index]) === multiplier &&
-                  currentlyDrawn > threshold
-                : length + movementX > threshold;
-
-              if (condition) {
-                open();
-              } else {
-                close();
-              }
-            }
-            break;
+          if (toOpen) {
+            openDrawer();
+          } else {
+            closeDrawer();
           }
         }
       };
 
+      openRef.current.push(openDrawer);
+      closeRef.current.push(closeDrawer);
       runnersRef.current.push(handler);
       return () => {
         runnersRef.current.splice(runnersRef.current.indexOf(handler), 1);
+        openRef.current.splice(openRef.current.indexOf(openDrawer), 1);
+        closeRef.current.splice(closeRef.current.indexOf(closeDrawer), 1);
       };
     }, []);
 
     const childrenWithProps = cloneElement(children, {
       ...children.props,
       className: cx(children.props.className, drawerBaseStyle),
+      'data-animate': '',
+
       ref,
       style: {
         ...children.props.style,
 
-        ...(side === Side.Left
-          ? { left: 0, transform: 'translateX(-100%)' }
-          : {}),
-        ...(side === Side.Right
-          ? { right: 0, transform: 'translateX(100%)' }
-          : {}),
-        ...(side === Side.Top
-          ? { top: 0, transform: 'translateY(-100%)' }
-          : {}),
-        ...(side === Side.Bottom
-          ? { bottom: 0, transform: 'translateY(100%)' }
-          : {}),
+        transform: `translateX(calc(-100%))`,
+        left: 0,
       },
     });
     return childrenWithProps;
@@ -256,5 +176,7 @@ export function useDrawer<Global extends boolean>({
 
   return {
     Drawer,
+    open,
+    close,
   };
 }

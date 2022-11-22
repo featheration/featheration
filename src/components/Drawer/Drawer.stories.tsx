@@ -1,22 +1,11 @@
 import { Meta, StoryFn } from '@storybook/react';
-import { forwardRef, HTMLAttributes, RefAttributes, useRef } from 'react';
-import { Side, useDrawer } from '.';
+import { forwardRef, HTMLAttributes, RefAttributes } from 'react';
+import { useDrawer } from '.';
 
-type BaseArgs = {
-  side: Side;
-};
+type BaseArgs = {};
 
 const meta: Meta = {
   title: 'Drawer',
-  argTypes: {
-    side: {
-      control: { type: 'select' },
-      options: Object.values(Side),
-    },
-  },
-  args: {
-    side: Side.Left,
-  },
 };
 export default meta;
 
@@ -51,10 +40,10 @@ const FakeScreen: React.FC<
 
 const FakeDrawerContent: React.FC<
   React.PropsWithChildren<
-    { side: Side } & HTMLAttributes<HTMLDivElement> &
-      RefAttributes<HTMLDivElement>
+    HTMLAttributes<HTMLDivElement> &
+      RefAttributes<HTMLDivElement> & { close: () => void }
   >
-> = forwardRef(({ side, children, ...props }, ref) => {
+> = forwardRef(({ close, children, ...props }, ref) => {
   const createRainbowDiv = (hue: number) => ({
     flex: 1,
     fontSize: '2rem',
@@ -71,12 +60,9 @@ const FakeDrawerContent: React.FC<
 
         background: '#d2d2d2',
 
-        ...(side === Side.Left || side === Side.Right
-          ? { height: '600px', width: '300px', flexDirection: 'row' }
-          : {}),
-        ...(side === Side.Top || side === Side.Bottom
-          ? { height: '400px', width: '400px', flexDirection: 'column' }
-          : {}),
+        height: '600px',
+        width: '300px',
+        flexDirection: 'row',
         display: 'flex',
 
         touchAction: 'none',
@@ -88,20 +74,52 @@ const FakeDrawerContent: React.FC<
           {index + 1}
         </div>
       ))}
+      <button
+        onClick={close}
+        style={{
+          fontSize: '1.5rem',
+          fontWeight: '900',
+          display: 'block',
+          margin: '1rem auto',
+          background: '#d2d2d2',
+          border: 'none',
+          borderRadius: '0.5rem',
+          padding: '1rem 2rem',
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+      >
+        Close Drawer
+      </button>
     </div>
   );
 });
 
-export const Simple: StoryFn<BaseArgs> = ({ side, ...props }) => {
-  const { Drawer } = useDrawer({
-    side,
-  });
+export const Simple: StoryFn<BaseArgs> = ({ ...props }) => {
+  const { Drawer, open, close } = useDrawer({});
 
   return (
     <FakeScreen>
       <Drawer {...props}>
-        <FakeDrawerContent side={side} />
+        <FakeDrawerContent close={close} />
       </Drawer>
+      <button
+        onClick={open}
+        style={{
+          fontSize: '2rem',
+          fontWeight: '900',
+          display: 'block',
+          margin: '1rem auto',
+          background: '#d2d2d2',
+          border: 'none',
+          borderRadius: '0.5rem',
+          padding: '1rem 2rem',
+        }}
+      >
+        Open Drawer
+      </button>
     </FakeScreen>
   );
 };
