@@ -20,12 +20,15 @@
     "@stackflow/react": "^0.15.2",
     "@tanstack/react-virtual": "^3.0.0-beta.22",
     "@use-gesture/react": "^10.2.22",
+    "i18next": "^22.0.6",
     "misskey-js": "^0.0.14",
     "parse-unit": "^1.0.1",
     "preact": "^10.11.3",
     "react": "npm:@preact/compat@17.1.2",
     "react-dom": "npm:@preact/compat@17.1.2",
-    "react-icons": "^4.6.0"
+    "react-i18next": "^12.0.0",
+    "react-icons": "^4.6.0",
+    "zod": "^3.19.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
