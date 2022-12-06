@@ -38,10 +38,10 @@ const ActionButtonBase = styled.button`
     bottom: 16px;
   }
 
-  background: var(--button-background-normal);
-  color: var(--text);
+  background: var(--action-button-background-normal);
+  color: var(--action-button-text);
 
-  outline-color: var(--button-background-normal);
+  outline-color: var(--action-button-background-normal);
 
   &:focus-visible {
     outline-width: 2px;
@@ -50,13 +50,13 @@ const ActionButtonBase = styled.button`
   }
 
   &:hover {
-    background: var(--button-background-hover);
-    outline-color: var(--button-background-hover);
+    background: var(--action-button-background-hover);
+    outline-color: var(--action-button-background-hover);
   }
 
   &:active {
-    background: var(--button-background-active);
-    outline-color: var(--button-background-active);
+    background: var(--action-button-background-active);
+    outline-color: var(--action-button-background-active);
   }
 `;
 
@@ -126,34 +126,14 @@ const styleAnimateOut = css`
 
 export interface ActionButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
-  backgroundNormal: string;
-  backgroundHover: string;
-  backgroundActive: string;
-  color?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
 export function ActionButton({
   children,
-  backgroundNormal,
-  backgroundHover,
-  backgroundActive,
-  color,
   ...props
 }: PropsWithChildren<ActionButtonProps>): JSX.Element {
-  return (
-    <ActionButtonBase
-      style={{
-        '--button-background-normal': backgroundNormal,
-        '--button-background-hover': backgroundHover,
-        '--button-background-active': backgroundActive,
-        '--text': color ?? '',
-      }}
-      {...props}
-    >
-      {children}
-    </ActionButtonBase>
-  );
+  return <ActionButtonBase {...props}>{children}</ActionButtonBase>;
 }
 
 export interface AnimateProps {

@@ -1,21 +1,41 @@
 import { Meta, StoryFn } from '@storybook/react';
-import { ActionButton } from '.';
+import { ActionButton, ActionButtonProps } from '.';
 import { BiPen } from 'react-icons/bi';
 import { RiMailAddLine } from 'react-icons/ri';
 import { MouseEventHandler, useState } from 'react';
 
-type BaseArgs = {
-  color: string;
+interface ActionButtonExtendedProps extends ActionButtonProps {
+  textColor: string;
   backgroundNormal: string;
   backgroundHover: string;
   backgroundActive: string;
-};
+}
 
-const meta: Meta<typeof ActionButton> = {
+function ActionButtonExtended({
+  textColor,
+  backgroundNormal,
+  backgroundHover,
+  backgroundActive,
+  ...props
+}: ActionButtonExtendedProps): JSX.Element {
+  return (
+    <ActionButton
+      style={{
+        '--action-button-background-normal': backgroundNormal,
+        '--action-button-background-hover': backgroundHover,
+        '--action-button-background-active': backgroundActive,
+        '--action-button-text': textColor ?? '',
+      }}
+      {...props}
+    />
+  );
+}
+
+const meta: Meta<typeof ActionButtonExtended> = {
   title: 'Action Button',
   component: ActionButton,
   args: {
-    color: '#2b2b2b',
+    textColor: '#2b2b2b',
     backgroundNormal: '#dcdcdc',
     backgroundHover: '#f4f4f4',
     backgroundActive: '#c2c2c2',
@@ -56,15 +76,15 @@ const Icon: React.FC<{ className?: string; icon: IconName }> = ({
 };
 
 export const Simple: StoryFn<
-  BaseArgs & { icon: IconName } & {
+  ActionButtonExtendedProps & { icon: IconName } & {
     onClick: MouseEventHandler<HTMLButtonElement>;
   }
 > = ({ icon, ...props }) => {
   return (
     <FakeScreen>
-      <ActionButton {...props}>
+      <ActionButtonExtended {...props}>
         <Icon icon={icon} />
-      </ActionButton>
+      </ActionButtonExtended>
     </FakeScreen>
   );
 };
@@ -81,7 +101,7 @@ Simple.args = {
   icon: 'post',
 };
 
-export const Animation: StoryFn<BaseArgs> = (props) => {
+export const Animation: StoryFn<ActionButtonExtendedProps> = (props) => {
   const [icon, setIcon] = useState<IconName | null>(null);
 
   const switchIcon = () => {
@@ -98,7 +118,7 @@ export const Animation: StoryFn<BaseArgs> = (props) => {
 
   return (
     <FakeScreen>
-      <ActionButton {...props} onClick={switchIcon}>
+      <ActionButtonExtended {...props} onClick={switchIcon}>
         {icon === 'chat' ? (
           <>
             <ActionButton.AnimateIn>
@@ -120,7 +140,7 @@ export const Animation: StoryFn<BaseArgs> = (props) => {
         ) : (
           <Icon icon="post" />
         )}
-      </ActionButton>
+      </ActionButtonExtended>
     </FakeScreen>
   );
 };

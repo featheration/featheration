@@ -1,11 +1,11 @@
-import { DOMAttributes, FC } from 'react';
+import { FC, HTMLAttributes, SVGAttributes } from 'react';
 import { z } from 'zod';
 import { Plugin } from './plugin';
 
 export interface Widget<T> {
   id: string;
   propsParser: z.Schema<T>;
-  Icon?: FC<DOMAttributes<Element>>;
+  Icon?: FC<HTMLAttributes<Element> | SVGAttributes<Element>>;
   Component: FC<T>;
 }
 

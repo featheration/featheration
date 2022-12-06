@@ -6,6 +6,7 @@ export const Reset = css`
   }
   body {
     margin: 0;
+    user-select: none;
   }
   button {
     border: none;

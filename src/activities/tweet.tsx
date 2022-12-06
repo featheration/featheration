@@ -14,10 +14,12 @@ export const TweetActivity: React.FC<{ params: TweetActivityProps }> = ({
     <AppScreen appBar={{ title: 'Tweet' }}>
       {tweet.text}
       <ActionButton
-        color="#2b2b2b"
-        backgroundNormal="#dcdcdc"
-        backgroundHover="#f4f4f4"
-        backgroundActive="#c2c2c2"
+        style={{
+          '--action-button-background-normal': '#dcdcdc',
+          '--action-button-background-hover': '#f4f4f4',
+          '--action-button-background-active': '#c2c2c2',
+          '--action-button-text': '#2b2b2b',
+        }}
       >
         Test
       </ActionButton>

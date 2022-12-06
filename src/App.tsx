@@ -9,7 +9,9 @@ import ClockPlugin from './plugins/clock';
 import { initializeI18n } from './lib/featheration/intl';
 
 export function App(): JSX.Element {
-  const { Drawer, open, close } = useDrawer();
+  const { Drawer, open, close } = useDrawer({
+    gestureMode: 'from-left',
+  });
   const [i18n, setI18n] = useState(false);
   const [widget, setWidget] = useState(false);
 
@@ -35,8 +37,24 @@ export function App(): JSX.Element {
             items={[
               {
                 type: 'widget',
-                plugin: 'clock',
-                widget: 'clock',
+                pluginId: 'clock',
+                widgetId: 'clock',
+                active: false,
+              },
+              {
+                type: 'widget',
+                pluginId: 'clock',
+                widgetId: 'clock',
+                active: true,
+              },
+              {
+                type: 'divider',
+              },
+              {
+                type: 'widget',
+                pluginId: 'clock',
+                widgetId: 'clock',
+                active: false,
               },
             ]}
           />

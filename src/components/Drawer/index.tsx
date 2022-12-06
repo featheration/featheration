@@ -1,7 +1,9 @@
 import { css, cx } from '@emotion/css';
+import styled from '@emotion/styled';
 import { Handler, useDrag } from '@use-gesture/react';
 import { cloneElement, useCallback, useEffect, useRef } from 'react';
 import { toPx } from '../../lib/to-px';
+import { coerceIn } from '../../utils/range';
 import { PropChildren, HasClassname, HasStyle, HasRef } from '../../utils/type';
 
 const drawerBaseStyle = css`
@@ -9,19 +11,49 @@ const drawerBaseStyle = css`
   transition: transform 0s;
   will-change: transform;
 
+  z-index: 15;
+
   &[data-animate] {
     transition: transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 `;
 
+const Backdrop = styled.div`
+  display: none;
+
+  &[data-shown] {
+    display: block;
+  }
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100dvw;
+  height: 100dvh;
+
+  background: rgba(0, 0, 0, 0.3);
+  transition: opacity 0s;
+  will-change: opacity;
+
+  &[data-animate] {
+    transition: opacity 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  z-index: 10;
+
+  backdrop-filter: blur(4px);
+`;
+
 export interface DrawerConfig {
   beginThreshold?: string;
   toggleThreshold?: string;
+  gestureMode?: 'disable' | 'from-left' | 'anywhere';
 }
 
 export function useDrawer({
   beginThreshold: rawBeginThreshold,
   toggleThreshold = '50%',
+  gestureMode = 'anywhere',
 }: DrawerConfig = {}): {
   Drawer: typeof Drawer;
   open: () => void;
@@ -40,7 +72,9 @@ export function useDrawer({
 
   useDrag(
     (event) => {
-      runnersRef.current.forEach((runner) => runner(event));
+      if (gestureMode !== 'disable') {
+        runnersRef.current.forEach((runner) => runner(event));
+      }
     },
     {
       axis: 'x',
@@ -62,42 +96,47 @@ export function useDrawer({
     if (children.props.ref) {
       throw new Error('Drawer children should not have ref');
     }
-    const ref = useRef<HTMLElement>();
+    const childRef = useRef<HTMLElement>();
+    const backdropRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
       let isOpen = false;
       let isDragging = false;
+      let ignoreGesture = false;
       let lastAnimation: number;
 
       function openDrawer() {
-        if (!ref.current) {
+        if (!childRef.current) {
           return;
         }
         startAnimation();
         isOpen = true;
-        ref.current.style.transform = 'translateX(0)';
+        childRef.current.style.transform = 'translateX(0)';
       }
 
       function closeDrawer() {
-        if (!ref.current) {
+        if (!childRef.current) {
           return;
         }
         startAnimation();
         isOpen = false;
-        ref.current.style.transform = `translateX(-100%)`;
+        childRef.current.style.transform = `translateX(-100%)`;
       }
 
       function startAnimation() {
         if (lastAnimation) {
           clearTimeout(lastAnimation);
         }
-        const target = ref.current;
-        if (!target) {
+        const child = childRef.current;
+        const backdrop = backdropRef.current;
+        if (!child || !backdrop) {
           return;
         }
-        target.dataset['animate'] = '';
+        child.dataset['animate'] = '';
+        backdrop.dataset['animate'] = '';
         lastAnimation = window.setTimeout(() => {
-          delete target.dataset['animate'];
+          delete child.dataset['animate'];
+          delete backdrop.dataset['animate'];
         }, 300);
       }
 
@@ -107,29 +146,57 @@ export function useDrawer({
         values: [vx, _vy],
         first,
       }) => {
-        if (!ref.current) {
+        if (!childRef.current) {
           return;
         }
 
         if (first) {
-          delete ref.current.dataset['animate'];
+          if (vx > 64 && !isOpen) {
+            ignoreGesture = true;
+          }
+          delete childRef.current.dataset['animate'];
         }
 
-        const evaluateToPx = (s: string) => toPx(s, ref.current, 'width');
+        if (ignoreGesture) {
+          if (!down) {
+            ignoreGesture = false;
+          }
+          return;
+        }
 
-        const length = ref.current.offsetWidth;
+        const evaluateToPx = (s: string) => toPx(s, childRef.current, 'width');
+
+        const length = childRef.current.offsetWidth;
 
         if (!isOpen) {
           const threshold = evaluateToPx(beginThreshold);
+          if (backdropRef.current) {
+            backdropRef.current.dataset['shown'] = '';
+          }
           if (mx > threshold && !isDragging) {
             isDragging = true;
             startAnimation();
           }
           if (isDragging) {
-            ref.current.style.transform = `translateX(calc(-100% + min(${vx}px, 100%)))`;
+            childRef.current.style.transform = `translateX(calc(-100% + min(${vx}px, 100%)))`;
+            if (backdropRef.current) {
+              backdropRef.current.style.opacity = `${coerceIn(
+                vx / length,
+                0,
+                1,
+              )}`;
+            }
           }
         } else {
-          ref.current.style.transform = `translateX(min(0px, max(${mx}px, -100%)))`;
+          childRef.current.style.transform = `translateX(min(0px, max(${mx}px, -100%)))`;
+          if (backdropRef.current) {
+            backdropRef.current.dataset['shown'] = '';
+            backdropRef.current.style.opacity = `${coerceIn(
+              (length + mx) / length,
+              0,
+              1,
+            )}`;
+          }
         }
         if (!down) {
           isDragging = false;
@@ -142,8 +209,19 @@ export function useDrawer({
 
           if (toOpen) {
             openDrawer();
+            if (backdropRef.current) {
+              backdropRef.current.style.opacity = `1`;
+            }
           } else {
             closeDrawer();
+            if (backdropRef.current) {
+              backdropRef.current.style.opacity = `0`;
+            }
+            setTimeout(() => {
+              if (backdropRef.current) {
+                delete backdropRef.current.dataset['shown'];
+              }
+            }, 300);
           }
         }
       };
@@ -162,7 +240,7 @@ export function useDrawer({
       ...children.props,
       className: cx(children.props.className, drawerBaseStyle),
 
-      ref,
+      ref: childRef,
       style: {
         ...children.props.style,
 
@@ -170,7 +248,12 @@ export function useDrawer({
         left: 0,
       },
     });
-    return childrenWithProps;
+    return (
+      <>
+        {childrenWithProps}
+        <Backdrop ref={backdropRef} />
+      </>
+    );
   }
 
   return {
