@@ -5,7 +5,7 @@ import { Trans } from 'react-i18next';
 import { css } from '@emotion/css';
 
 const Wrap = styled.div`
-  width: min(22.5rem, 100dvw);
+  width: min(22.5rem, calc(100dvw - 1rem));
   height: calc(100dvh - 1rem);
 
   background: white;

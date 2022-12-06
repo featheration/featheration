@@ -1,0 +1,17 @@
+{
+  "short_name": "Featheration",
+  "name": "Featheration",
+  "icons": [
+    {
+      "src": "/images/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#000000"
+}
